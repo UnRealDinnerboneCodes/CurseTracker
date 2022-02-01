@@ -97,7 +97,19 @@ public class Tracker
     }
 
 
-    public record Mod(int modId, String name, String author, String websiteUrl, String slug, int downloads, String first_seen) {}
+    public record Mod(int modId, String name, String author, String websiteUrl, String slug, int downloads, String first_seen) {
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(!(o instanceof Mod mod)) return false;
+            return modId == mod.modId;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(modId);
+        }
+    }
 
 
     public static HashSet<Mod> getSet(String json) throws IOException {
