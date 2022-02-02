@@ -39,7 +39,7 @@ public class Tracker
         Path blockedJson = Path.of(FOLDER_NAME).resolve("blocked.json");
 
 
-        TaskScheduler.scheduleRepeatingTask(12, TimeUnit.HOURS, () -> {
+        TaskScheduler.scheduleRepeatingTask(1, TimeUnit.HOURS, () -> {
             Queue<DiscordWebhook> webhooks = new ConcurrentLinkedQueue<>();
             try {
                 String json = HttpUtils.get(BLOCKED_MODS_URL).body();
