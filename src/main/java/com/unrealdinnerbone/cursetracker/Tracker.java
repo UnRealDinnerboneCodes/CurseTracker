@@ -15,6 +15,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Queue;
 import java.util.*;
@@ -67,7 +68,7 @@ public class Tracker
                                         .build()))
                         .forEach(webhooks::add);
 
-                Files.writeString(Path.of("blocked.json"), json);
+                Files.writeString(blockedJson, json, StandardOpenOption.TRUNCATE_EXISTING);
             }catch(IOException | InterruptedException e) {
                 LOGGER.error("Failed to get blocked mods list", e);
             }
