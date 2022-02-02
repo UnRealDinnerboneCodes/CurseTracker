@@ -15,6 +15,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Queue;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -42,11 +43,11 @@ public class Tracker
             try {
                 String json = HttpUtils.get(BLOCKED_MODS_URL).body();
 
-                HashSet<Mod> currentBlocked = getSet(json);
-                HashSet<Mod> oldBlocked = getSet(Files.readString(blockedJson));
+                List<Mod> currentBlocked = getSet(json);
+                List<Mod> oldBlocked = getSet(Files.readString(blockedJson));
 
                 currentBlocked.stream()
-                        .filter(Predicate.not(oldBlocked::contains))
+                        .filter(mod -> !has(oldBlocked, mod))
                         .peek(mod -> LOGGER.info("New blocked mod: {}", mod.name()))
                         .map(mod -> DiscordWebhook.of(WEBHOOK_URL)
                                 .addEmbed(EmbedObject.builder()
@@ -57,7 +58,7 @@ public class Tracker
 
 
                 oldBlocked.stream()
-                        .filter(Predicate.not(currentBlocked::contains))
+                        .filter(mod -> !has(currentBlocked, mod))
                         .peek(mod -> LOGGER.info("Unblocked mod: {}", mod.name()))
                         .map(mod -> DiscordWebhook.of(WEBHOOK_URL)
                                 .addEmbed(EmbedObject.builder()
@@ -97,6 +98,10 @@ public class Tracker
     }
 
 
+    public static boolean has(List<Mod> mods, Mod mod) {
+        return mods.stream().anyMatch(mod1 -> mod.modId == mod1.modId);
+    }
+
     public record Mod(int modId, String name, String author, String websiteUrl, String slug, int downloads, String first_seen) {
         @Override
         public boolean equals(Object o) {
@@ -112,7 +117,7 @@ public class Tracker
     }
 
 
-    public static HashSet<Mod> getSet(String json) throws IOException {
-        return new HashSet<>(Arrays.asList(PARSER.parse(Mod[].class, json)));
+    public static List<Mod> getSet(String json) throws IOException {
+        return Arrays.asList(PARSER.parse(Mod[].class, json));
     }
 }
