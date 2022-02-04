@@ -51,21 +51,17 @@ public class Tracker
                         .filter(mod -> !has(oldBlocked, mod))
                         .peek(mod -> LOGGER.info("New blocked mod: {}", mod.name()))
                         .map(mod -> DiscordWebhook.of(WEBHOOK_URL)
-                                .addEmbed(EmbedObject.builder()
-                                        .color(Color.RED)
-                                        .author(new EmbedObject.Author(mod.name() + " has blocked downloads", mod.websiteUrl(), AUTHOR_URL))
-                                        .build()))
+                                .setAvatarUrl(AUTHOR_URL)
+                                .setContent("❌ [" + mod.name() + "]("+ mod.websiteUrl() + ") has blocked downloads"))
                         .forEach(webhooks::add);
 
 
                 oldBlocked.stream()
                         .filter(mod -> !has(currentBlocked, mod))
-                        .peek(mod -> LOGGER.info("Unblocked mod: {}", mod.name()))
+                        .peek(mod -> LOGGER.info("✅ Unblocked mod: {}", mod.name()))
                         .map(mod -> DiscordWebhook.of(WEBHOOK_URL)
-                                .addEmbed(EmbedObject.builder()
-                                        .color(Color.GREEN)
-                                        .author(new EmbedObject.Author(mod.name() + " has unblocked downloads", mod.websiteUrl(), AUTHOR_URL))
-                                        .build()))
+                                .setAvatarUrl(AUTHOR_URL)
+                                .setContent("✅ [" + mod.name() + "]("+ mod.websiteUrl() + ") has unblocked downloads"))
                         .forEach(webhooks::add);
 
                 Files.writeString(blockedJson, json, StandardOpenOption.TRUNCATE_EXISTING);
