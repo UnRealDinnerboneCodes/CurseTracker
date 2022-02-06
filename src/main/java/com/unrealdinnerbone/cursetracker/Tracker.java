@@ -4,24 +4,19 @@ import com.squareup.moshi.Moshi;
 import com.unrealdinnerbone.cursetracker.temp.RecordsJsonAdapterFactory;
 import com.unrealdinnerbone.unreallib.TaskScheduler;
 import com.unrealdinnerbone.unreallib.discord.DiscordWebhook;
-import com.unrealdinnerbone.unreallib.discord.EmbedObject;
 import com.unrealdinnerbone.unreallib.json.IJsonParser;
 import com.unrealdinnerbone.unreallib.json.MoshiParser;
 import com.unrealdinnerbone.unreallib.web.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.List;
-import java.util.Queue;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 
 public class Tracker
 {
@@ -43,6 +38,8 @@ public class Tracker
             Queue<DiscordWebhook> webhooks = new ConcurrentLinkedQueue<>();
             try {
                 String json = HttpUtils.get(BLOCKED_MODS_URL).body();
+
+                Files.writeString(Path.of(FOLDER_NAME).resolve(System.currentTimeMillis() + ".json"), json, StandardOpenOption.CREATE);
 
                 List<Mod> currentBlocked = getSet(json);
                 List<Mod> oldBlocked = getSet(Files.readString(blockedJson));
@@ -84,7 +81,8 @@ public class Tracker
                         cancel();
                     }
                 }
-            }, 0L, TimeUnit.SECONDS.toMillis(5));
+
+            }, 0, TimeUnit.SECONDS.toMillis(5));
         });
 
 
